@@ -1,9 +1,19 @@
+'''
+stream_Id_manager.py
+It issue a stream ID for input user ID.
+
+When issue_streamId is called,
+If the key files already exist, it reads and returns the public key as OpenSSH format.
+Else, it generates RSA key and saves the keys as .pem file in /keys directory.
+'''
+
 from Crypto.PublicKey import RSA
 from hashlib import sha256
 import os
 from base64 import b64encode
 import logging
 import argparse
+import time
 RSA_KEY_LENGTH = 1024
 dir_name = 'keys'
 
@@ -16,8 +26,8 @@ def issue_streamId (userId):
     # use - and _ instead of + and / in base64 alphabet, as same as URL safe
     file_name = b64encode(userId_digest, altchars = '-_')
 
-    logging.debug('Input user ID: {}'.format(userId))
-    logging.debug('hash digest in base64: {}'.format(file_name))
+    logging.debug('[SIM] Input user ID: {}'.format(userId))
+    logging.debug('[SIM] Hash digest in base64: {}'.format(file_name))
 
     pubkey_file_name = 'PUBKEY_' + file_name + '.pem'
     pubkey_file_dir = os.path.join(dir_name, pubkey_file_name)
@@ -25,21 +35,24 @@ def issue_streamId (userId):
     prvkey_file_dir = os.path.join(dir_name, prvkey_file_name)
 
     if os.path.isfile(pubkey_file_dir):
-        logging.debug('RSA key file is already exists')
+        logging.debug('[SIM] RSA key file already exists')
         f = open(pubkey_file_dir, 'r')
         rsa_key = RSA.importKey(f.read())
+        logging.debug('[SIM] RSA key file read complete')
         f.close()
-        return None
+        return rsa_key.exportKey(format = 'OpenSSH')
 
     else:
-        logging.debug('RSA key file does not exist')
+        logging.debug('[SIM] RSA key file does not exist')
+        tmptime = time.time()
         rsa_key = RSA.generate(RSA_KEY_LENGTH)
-        logging.debug('RSA key generation is done')
+        logging.debug('[SIM] RSA key generation is done in {} ms'.\
+                format((time.time()-tmptime)*1000))
         with open(pubkey_file_dir, 'wb') as f:
             f.write(rsa_key.publickey().exportKey('PEM'))
         with open(prvkey_file_dir, 'wb') as f:
             f.write(rsa_key.exportKey('PEM'))
-        return None
+        return rsa_key.publickey().exportKey('OpenSSH')
 
 def reset_database():
     for root, dirs, files in os.walk(dir_name):
@@ -55,4 +68,5 @@ if __name__ == '__main__':
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
     if args.uid:
-        issue_streamId(args.uid)
+        logging.debug(issue_streamId(args.uid))
+        logging.info('[SIM] Issuing a stream ID is done')
