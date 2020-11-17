@@ -1,6 +1,6 @@
 '''
 network_interface.py
-It is a server for manage stream IDs.
+It is a server for managing stream IDs.
 '''
 import socket
 import stream_id_manager
@@ -27,6 +27,6 @@ while True:
     logging.debug('[Server] Issued Stream ID: {}'.format(pubkey))
     client_socket.sendall(pubkey)
     logging.info('[Server] Send message to client')
-    
+
     client_socket.close()
     logging.info('[Server] Close client socket')

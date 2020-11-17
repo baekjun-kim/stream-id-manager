@@ -6,7 +6,7 @@ import argparse
 import socket
 
 host = '127.0.0.1'
-ip = 3099
+port = 3099
 
 def main():
     parser = argparse.ArgumentParser(description="Client to issue a stream ID.")
@@ -15,7 +15,7 @@ def main():
 
     if args.uid:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((host, ip))
+        s.connect((host, port))
         s.sendall(args.uid)
 
         data = s.recv(1024)
