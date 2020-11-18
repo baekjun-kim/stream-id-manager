@@ -5,7 +5,7 @@ To prove working of the server (network_interface.py)
 import argparse
 import socket
 
-host = '127.0.0.1'
+host = '10.0.10.1'
 port = 3099
 
 def main():

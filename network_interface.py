@@ -5,7 +5,7 @@ It is a server for managing stream IDs.
 import socket
 import stream_id_manager
 import logging
-LOCAL_HOST = '127.0.0.1'
+LOCAL_HOST = '10.0.10.1'
 LOCAL_PORT = 3099
 SIZE = 1024
 logging.basicConfig(level=logging.DEBUG)
@@ -15,7 +15,7 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind((LOCAL_HOST, LOCAL_PORT))
 server_socket.listen(1)
-logging.info('[Server] Server Started')
+logging.info('[Server] Server Started at {}:{}'.format(LOCAL_HOST, LOCAL_PORT))
 
 while True:
     client_socket, client_addr = server_socket.accept()
@@ -25,7 +25,7 @@ while True:
     logging.debug('[Server] received msg: {}'.format(msg))
     pubkey = stream_id_manager.issue_streamId(msg)
     logging.debug('[Server] Issued Stream ID: {}'.format(pubkey))
-    client_socket.sendall(pubkey)
+    client_socket.sendall(pubkey[8:])
     logging.info('[Server] Send message to client')
 
     client_socket.close()
