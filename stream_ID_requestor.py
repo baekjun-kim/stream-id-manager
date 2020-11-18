@@ -35,6 +35,7 @@ def main():
         logging.info('Recieved Stream ID: {}'.format(data))
         with open('streamID.txt', 'w') as f:
             f.write(data)
+			logging.info('Issued Stream ID is saved as streamID.txt')
         s.close()
 
 if  __name__ == '__main__':
