@@ -8,7 +8,7 @@ Else, it generates RSA key and saves the keys as .pem file in /keys directory.
 '''
 
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_v1_5
+from Crypto.Cipher import PKCS1_OAEP
 from hashlib import sha256
 import os
 from base64 import b64encode
@@ -76,7 +76,6 @@ def decrypt_message (input_pubkey, message):
         logging.debug('[SIM] ID-PW table open')
         for l in f.readlines():
             component = l.split(' ')
-            print(component[2], input_pubkey)
             if component[2] == input_pubkey:
                 logging.debug('[SIM] found match public key')
                 with open(os.path.join(dir_name,\
@@ -84,8 +83,8 @@ def decrypt_message (input_pubkey, message):
                     logging.debug('[SIM] open prviate key')
                     rsa_private_key = RSA.importKey(prvkey_file.read())
                     logging.debug('[SIM] load private key success')
-                    cipher = PKCS1_v1_5.new(rsa_private_key)
-                    return cipher.decrypt(message, 'ERORR')
+                    cipher = PKCS1_OAEP.new(rsa_private_key)
+                    return cipher.decrypt(message)
         logging.debug('[SIM] Failed to find public key')
         return None
 
@@ -126,7 +125,7 @@ if __name__ == '__main__':
         logging.info('[SIM] Issuing a stream ID is done')
         logging.debug('[SIM] Pubkey: {}'.format(pubkey))
 
-        
+        '''
         print('simple my test start')
         tmpkey = RSA.importKey(pubkey)
         cipher = PKCS1_v1_5.new(tmpkey)
@@ -135,4 +134,4 @@ if __name__ == '__main__':
         print(type(enc_message))
         print('Decrypted message is {}'.format(decrypt_message(pubkey[8:], enc_message)))
         print('Id-pw can match?', check_idpw (args.ID, args.password))
-        
+        '''
