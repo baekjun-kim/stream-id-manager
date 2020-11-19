@@ -88,12 +88,12 @@ def decrypt_message (input_pubkey, message):
         logging.debug('[SIM] Failed to find public key')
         return None
 
-def check_idpw (input_id, input_pw):
-    logging.debug('[SIM] Check ID/PW')
+def check_idpw (input_id, input_pw, input_public_key):
+    logging.debug('[SIM] Check ID/PW/PUBKEY')
     with open(idpw_table_name, 'r') as f:
         logging.debug('[SIM] Read ID-PW table')
         for l in f.readlines():
-            if (input_id + ' ' + input_pw) in l:
+            if (input_id + ' ' + input_pw + ' ' + input_public_key) in l:
                 logging.debug('[SIM] Match success')
                 return True
         logging.debug('[SIM] Match failed')

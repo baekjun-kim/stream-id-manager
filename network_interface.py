@@ -27,20 +27,35 @@ while True:
     logging.info('[Server] Client Received: {}'.format(client_addr))
 
     msg = client_socket.recv(SIZE)
-    logging.debug('[Server] received msg: {}'.format(msg))
+    logging.debug('[Server] received msg: {}'.format(\
+            msg[:PUBKEY_SIZE + ENCRYPTED_MESSAGE_SIZE]))
     #extract
     public_key = msg[:PUBKEY_SIZE]
     encrypted_message = msg[PUBKEY_SIZE:PUBKEY_SIZE+ENCRYPTED_MESSAGE_SIZE]
-
-    original_message =stream_id_manager.decrypt_message(\
-            public_key,\
-            b64decode(encrypted_message)).split(':')
-    if (stream_id_manager.check_idpw(original_message[0], original_message[1])):
+    try:
+        decrypted_message = stream_id_manager.decrypt_message(\
+                public_key,\
+                b64decode(encrypted_message))
+    except:
+        logging.debug('[Server] Incorrect nonce')
+        client_socket.close()
+        logging.info('[Server] Close client socket')
+        continue
+    if (decrypted_message):
+        [extract_id, extract_pw] = decrypted_message.split(':')
+    else:
+        logging.debug('[Server] Cannot decrypt message.')
+        client_socket.close()
+        logging.info('[Server] Close client socket')
+        continue
+    logging.debug('[Server] ID: {}, PW: {}'.format(\
+            extract_id, extract_pw))
+    if (stream_id_manager.check_idpw(extract_id, extract_pw, public_key)):
         client_socket.sendall('success')
-        logging.info('[Server] Success')
+        logging.info('[Server] Authentication Success')
     else:
         client_socket.sendall('fail')
-        logging.info('[Server] Failed')
+        logging.info('[Server] Authentication Failed')
     logging.info('[Server] Send message to client')
     time.sleep(1)
     client_socket.close()
