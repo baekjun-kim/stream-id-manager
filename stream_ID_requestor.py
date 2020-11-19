@@ -14,10 +14,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 def main():
     parser = argparse.ArgumentParser(description="Client to issue a stream ID.")
-    parser.add_argument('uid', help='user ID')
+    parser.add_argument('ID', help='user ID')
+    parser.add_argument('passwd', help='user password')
     args = parser.parse_args()
 
-    if args.uid:
+    if args.ID and args.passwd:
         context = ssl.create_default_context()
         context.check_hostname = False
         context.load_verify_locations('./tls_key/myCrt.crt')
@@ -26,7 +27,7 @@ def main():
         s = context.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
         s.connect((HOST, PORT))
         logging.info('Connect to {}:{}'.format(HOST,PORT))
-        s.sendall(args.uid.encode('utf-8'))
+        s.sendall((args.ID + ' ' + args.passwd).encode('utf-8'))
 
         data = s.recv(1024)
         if len(data) != 204:

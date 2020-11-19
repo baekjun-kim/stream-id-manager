@@ -28,7 +28,8 @@ while True:
 
     msg = connstream.recv(SIZE)
     logging.debug('[TLS Server] received msg: {}'.format(msg))
-    pubkey = stream_id_manager.issue_streamId(msg)
+    split_msg = msg.split()
+    pubkey = stream_id_manager.issue_streamId(split_msg[0], split_msg[1])
     logging.debug('[TLS Server] Issued Stream ID: {}'.format(pubkey))
     connstream.sendall(pubkey[8:])
     logging.info('[TLS Server] Send message to client')
